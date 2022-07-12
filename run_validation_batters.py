@@ -9,7 +9,16 @@ savedate = '030622'
 import src.predictiondata as predictiondata
 
 minyear,maxyear = 2021,2022
+minyear,maxyear = 2022,2023
+
+remake=False
+
 years = range(minyear,maxyear)
+
+if remake==True: # force remaking
+    df = predictiondata.grab_fangraphs_data(years)
+    df.to_csv('predictions/AllHitting_{}_{}.csv'.format(minyear,maxyear-1))
+
 try: # is the relevant file already constructed?
     df = pd.read_csv('predictions/AllHitting_{}_{}.csv'.format(minyear,maxyear-1))
 except:

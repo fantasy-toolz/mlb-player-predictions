@@ -87,7 +87,7 @@ def predict_players(pls,years,printfile,AgeDict,PADict,df,hitter_cluster_centroi
 
         adj_fac = 1.#ip/ip_s
         #print(adj_fac)
-        print(yrsum_denom,pa)
+        #print(yrsum_denom,pa)
         if (yrsum_denom <= 0.) & (pa > 100.):
             #print(pl,pa)
             ShouldProject.append(pl)

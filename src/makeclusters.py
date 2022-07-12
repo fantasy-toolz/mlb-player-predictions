@@ -5,12 +5,29 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
-def create_clusters(df,indx,ccen,\
+def create_hitting_clusters(df,ccen,\
                     years,
                     min_pas=100,\
                     fantasy_stats=['HR', 'H', 'AB', 'SB', 'RBI','R'],\
                     denominator='PA',
                     savedir='predictions/'):
+    """create_clusters
+
+    inputs
+    -------------
+    df              : (pandas dataframe) dataframe with all data
+    ccen            : (int) number of clusters to fit
+    years           : (list of int) list of years to use to create clusters
+    min_pas         : (int) minimum number of pas for a player to forecast them
+    fantasy_stats   :
+    denominator     :
+    savedir         :
+
+    returns
+    -------------
+    ShouldProject   :
+
+    """
 
     nclustersmax = ccen
 
@@ -18,8 +35,6 @@ def create_clusters(df,indx,ccen,\
 
     StarterCenters = {}
     StereotypeKeys = {}
-
-    #df = df.loc[df['Name']==df['Name'] ]#) & (hitter_eoy_df['wRC+'] != '&nbsp;')]
 
     # strip some columns
     for column in df.columns[4:]:
@@ -31,7 +46,7 @@ def create_clusters(df,indx,ccen,\
                 df[column] = df[column].astype(float)
 
 
-    # predictions are only valid for certain numbers of PAs
+    # predictions are only valid for certain numbers of PAs:
     df = df.loc[(df['PA']> min_pas)]
 
 
@@ -43,41 +58,37 @@ def create_clusters(df,indx,ccen,\
 
 
     # this needs to be made adaptive
-    Y = df[['HR.Normalize','H.Normalize',\
-        'AB.Normalize','SB.Normalize', 'RBI.Normalize', 'R.Normalize']].values
+    norm_column_list = ['{}.Normalize'.format(x) for x in fantasy_stats]
+    Y = df[norm_column_list].values
 
 
     # run the actual K-means
     # use the following features:
     # HR, H, AB, SB, RBI, R
-    kmeans = KMeans(n_clusters=ccen, random_state=3425)
+    kmeans    = KMeans(n_clusters=ccen, random_state=3425)
     kmeans.fit(Y)
-    predict = kmeans.predict(Y)
+    predict   = kmeans.predict(Y)
     centroids = kmeans.cluster_centers_
-    labels = kmeans.labels_
+    labels    = kmeans.labels_
 
     StarterCenters[ccen] = centroids
     StereotypeKeys[ccen] = {}
 
-
+    centroid_column_list = ['{}.Centroid'.format(x) for x in fantasy_stats]
     hitter_cluster_centroid_df = pd.DataFrame(centroids, \
-                                              columns=['HR.Centroid',\
-                                                       'H.Centroid',\
-                                                       'AB.Centroid',\
-                                                       'SB.Centroid',\
-                                                       'RBI.Centroid',\
-                                                       'R.Centroid'])#,\
-                                                       #'BB.Centroid'])
+                                              columns=centroid_column_list)
 
     hitter_cluster_centroid_df['Tot.Rank']  = 0
     for column in hitter_cluster_centroid_df.columns[:-1]:
-        stat = column.split(".")[0]
+
+        stat    = column.split(".")[0]
+
         # this formula scales relative to overall value
         meanval = np.nanmedian(df['{0}.Normalize'.format(stat)])
-        stdval = np.nanstd(df['{0}.Normalize'.format(stat)])
+        stdval  = np.nanstd(df['{0}.Normalize'.format(stat)])
 
         hitter_cluster_centroid_df['{0}.Rank'.format(stat)]  = (hitter_cluster_centroid_df['{0}.Centroid'.format(stat)] - meanval)/stdval
-        hitter_cluster_centroid_df['Tot.Rank'] = hitter_cluster_centroid_df['Tot.Rank'] +hitter_cluster_centroid_df['{0}.Rank'.format(stat)]
+        hitter_cluster_centroid_df['Tot.Rank']               = hitter_cluster_centroid_df['Tot.Rank'] +hitter_cluster_centroid_df['{0}.Rank'.format(stat)]
 
     # Now Let's Predict our Clusters
     df['Clusters'] = pd.Series(predict, index=df.index)
@@ -151,7 +162,7 @@ def create_clusters(df,indx,ccen,\
 
 
 
-def create_pitching_clusters(df,indx,ccen,\
+def create_pitching_clusters(df,ccen,\
                     years,
                     min_pas=100,\
                     savedir='predictions/'):

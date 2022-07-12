@@ -85,7 +85,7 @@ except:
 
 # use 12 clusters
 import src.makeclusters as makeclusters
-year_df,stereotype_df,dfnew,hitter_cluster_centroid_df = makeclusters.create_pitching_clusters(df,0,nclusters,years)
+year_df,stereotype_df,dfnew,hitter_cluster_centroid_df = makeclusters.create_pitching_clusters(df,nclusters,years)
 
 
 #consider age factors
