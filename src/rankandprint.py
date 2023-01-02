@@ -126,7 +126,7 @@ def print_html_ranks(printfile,A,totrank,LDict,MDict,HDict):
     for pl,indx in enumerate((totrank).argsort()):
         #print(A['Name'][indx])
 
-        if ((A['PA'][indx] > 150) & (MDict['H'][indx] > 0.05)):
+        if ((A['PA'][indx] > 0) & (MDict['H'][indx] > 0.05)):
 
             print('<tr><td><a href=\"'+'batters/player{}.html'.format(indx)+'\">',A['Name'][indx].decode(),'</a></td><td>',int(A['PA'][indx]),'</td><td>',\
              np.round(((0.93*MDict['H']+MDict['HR'])/(1.0*A['AB'])),3)[indx],'</td><td>',\
@@ -163,7 +163,7 @@ def print_csv_ranks(printfile,A,totrank,LDict,MDict,HDict):
     for pl,indx in enumerate((totrank).argsort()):
         #print(A['Name'][indx])
 
-        if A['PA'][indx] > 150:
+        if A['PA'][indx] > 0:
 
             try:
                 print(A['Name'][indx].decode(),',',int(A['PA'][indx]),',',\

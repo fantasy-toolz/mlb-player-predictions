@@ -1,3 +1,10 @@
+"""
+
+may need to install
+pip install html5lib
+
+"""
+
 
 import numpy as np
 import pandas as pd
@@ -5,6 +12,7 @@ import pandas as pd
 
 savedate = '022121'
 savedate = '030622'
+savedate = '010223'
 nclusters=12
 
 # new weights for January 4th 2021
@@ -19,13 +27,19 @@ year_weights[2018.0] = 0.07
 year_weights[2019.0] = 0.13
 year_weights[2020.0] = 0.3
 year_weights[2021.0] = 0.5
+
+year_weights = {}
+year_weights[2019.0] = 0.07
+year_weights[2020.0] = 0.13
+year_weights[2021.0] = 0.3
+year_weights[2022.0] = 0.5
 print(year_weights)
 
 
 # obtain the data
 import src.predictiondata as predictiondata
 
-minyear,maxyear = 2018,2022
+minyear,maxyear = 2019,2023
 years = range(minyear,maxyear)
 try: # is the relevant file already constructed?
     df = pd.read_csv('predictions/AllHitting_{}_{}.csv'.format(minyear,maxyear-1))
@@ -56,6 +70,7 @@ year_weights_penalty[2018.0] = 0.0#5
 year_weights_penalty[2019.0] = 0.0#1
 year_weights_penalty[2020.0] = 0.0#5
 year_weights_penalty[2021.0] = 0.0#5
+year_weights_penalty[2022.0] = 0.0#5
 
 # set regression factors
 regression_factor     = 0.8
@@ -70,6 +85,8 @@ PADict = dict()
 for name in namelist:
     PADict[name] = ST['pa'][namelist==name]
 
+
+# reset PAs to be from last year only
 
 PADict = dict()
 for name in namelist:
@@ -99,6 +116,7 @@ ShouldProject = projectplayers.predict_players(pls,years,printfile,dict(),PADict
 print(ShouldProject)
 
 printfile = 'predictions/predictit_b'+savedate+'.dat'
+printfile = 'predictions/hitter_predictions'+savedate+'.dat'
 
 A = np.genfromtxt(printfile,\
 

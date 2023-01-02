@@ -52,9 +52,10 @@ def create_hitting_clusters(df,ccen,\
 
     for stat in fantasy_stats:
         if stat=='H':
-            df['{0}.Normalize'.format(stat)] = 100.*(df[stat]-df['HR'])/df[denominator]
+            print(df.loc[:,(stat)])
+            df.loc[:,('{0}.Normalize'.format(stat))] = 100.*(df.loc[:,(stat)]-df.loc[:,('HR')])/df.loc[:,(denominator)]
         else:
-            df['{0}.Normalize'.format(stat)] = 100.*(df[stat])/df[denominator]
+            df.loc[:,('{0}.Normalize'.format(stat))] = 100.*(df.loc[:,(stat)])/df.loc[:,(denominator)]
 
 
     # this needs to be made adaptive

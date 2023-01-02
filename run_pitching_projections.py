@@ -10,6 +10,8 @@ import scipy.stats as ss
 
 savedate = '022121'
 savedate = '030622'
+savedate = '010223'
+
 nclusters=12
 
 # new weights for January 4th 2021
@@ -25,6 +27,12 @@ year_weights[2019.0] = 0.13
 year_weights[2020.0] = 0.3
 year_weights[2021.0] = 0.5
 
+year_weights = {}
+year_weights[2019.0] = 0.07
+year_weights[2020.0] = 0.13
+year_weights[2021.0] = 0.3
+year_weights[2022.0] = 0.5
+
 # penalty if missing
 year_weights_penalty = {}
 year_weights_penalty[2017.0] = 0.00
@@ -32,6 +40,7 @@ year_weights_penalty[2018.0] = 0.00
 year_weights_penalty[2019.0] = 0.00
 year_weights_penalty[2020.0] = 0.00
 year_weights_penalty[2021.0] = 0.00
+year_weights_penalty[2022.0] = 0.00
 
 regression_factor = 0.8
 err_regression_factor = 1.5
@@ -62,6 +71,7 @@ import src.predictiondata as predictiondata
 
 minyear,maxyear = 2017,2021
 minyear,maxyear = 2018,2022
+minyear,maxyear = 2019,2023
 
 years = range(minyear,maxyear)
 
