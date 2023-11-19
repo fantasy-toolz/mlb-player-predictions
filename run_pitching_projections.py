@@ -11,6 +11,8 @@ import scipy.stats as ss
 savedate = '022121'
 savedate = '030622'
 savedate = '010223'
+savedate = '020923'
+savedate = '111923'
 
 nclusters=12
 
@@ -33,6 +35,12 @@ year_weights[2020.0] = 0.13
 year_weights[2021.0] = 0.3
 year_weights[2022.0] = 0.5
 
+year_weights = {}
+year_weights[2020.0] = 0.07
+year_weights[2021.0] = 0.13
+year_weights[2022.0] = 0.3
+year_weights[2023.0] = 0.5
+
 # penalty if missing
 year_weights_penalty = {}
 year_weights_penalty[2017.0] = 0.00
@@ -41,26 +49,27 @@ year_weights_penalty[2019.0] = 0.00
 year_weights_penalty[2020.0] = 0.00
 year_weights_penalty[2021.0] = 0.00
 year_weights_penalty[2022.0] = 0.00
+year_weights_penalty[2023.0] = 0.00
 
 regression_factor = 0.8
 err_regression_factor = 1.5
 
-# set up saves predictions 2021
+# set up saves predictions 2023
 #http://www.espn.com/fantasy/baseball/flb/story?page=REcloserorgchart
 
-closers = [b'Hunter Harvey',b'Matt Barnes',b'Aroldis Chapman',b'Diego Castillo',b'Kirby Yates',\
-          b'Liam Hendriks',b'James Karinchak',b'Bryan Garcia',b'Greg Holland',b'Taylor Rogers',\
-          b'Ryan Pressly',b'Raisel Iglesias',b'Jake Diekman',b'Rafael Montero',b'Jose Leclerc',\
-          b'Will Smith',b'Anthony Bass',b'Edwin Diaz',b'Hector Neris',b'Brad Hand',\
-          b'Craig Kimbrel',b'Lucas Sims',b'Josh Hader',b'Richard Rodriguez',b'Alex Reyes',\
-          b'Stefan Crichton',b'Scott Oberg',b'Kenley Jansen',b'Drew Poneranz',b'Reyes Moronta']
+closers = [b'Felix Bautista',b'Kenley Jansen',b'Clay Holmes',b'Pete Fairbanks',b'Jordan Romano',\
+          b'Kendall Graveman',b'Emmanuel Clase',b'Alex Lange',b'Scott Barlow',b'Jorge Lopez',\
+          b'Ryan Pressly',b'Carlos Estevez',b'Trevor May',b'Paul Sewald',b'Jose Leclerc',\
+          b'Raisel Iglesias',b'Dylan Floro',b'Edwin Diaz',b'Seranthony Dominguez',b'Kyle Finnegan',\
+          b'Brad Boxberger',b'Alexis Diaz',b'Devin Williams',b'David Bednar',b'Ryan Helsley',\
+          b'Mark Melancon',b'Daniel Bard',b'Evan Phillips',b'Josh Hader',b'Camilo Doval']
 
-next_up = [b'Dillon Tate',b'Darwinzon Hernandez',b'Zach Britton',b'Nick Anderson',b'Jordan Romano',\
-          b'Aaron Bummer',b'Nick Wittgren',b'Buck Farmer',b'Scott Barlow',b'Tyler Duffey',\
-          b'Enoli Paredes',b'Mike Mayers',b'Jordan Weems',b'Yohan Ramirez',b'Johnathan Hernandez',\
-          b'Chris Martin',b'Yimi Garcia',b'Trevor May',b'Archie Bradley',b'Daniel Hudson',\
-          b'Rowan Wick',b'Amir Garrett',b'Devin Williams',b'Nick Burdi',b'Giovanny Gallegos',\
-          b'Kevin Ginkel',b'Daniel Bard',b'Blake Treinen',b'Emilio Pagan',b'Tyler Rogers',\
+next_up = [b'Cionel Perez',b'Chris Martin',b'Jonathan Loaisiga',b'Jason Adam',b'Erik Swanson',\
+          b'Aaron Bummer',b'James Karinchak',b'Jose Cisnero',b'Aroldis Chapman',b'Jhoan Duran',\
+          b'Rafael Montero',b'Jimmy Herget',b'Zach Jackson',b'Andres Munoz',b'Johnathan Hernandez',\
+          b'Joe Jimenez',b'Tanner Scott',b'David Robertson',b'Craig Kimbrel',b'Carl Edwards Jr.',\
+          b'Brandon Hughes',b'Lucas Sims',b'Matt Bush',b'Wil Crowe',b'Giovanny Gallegos',\
+          b'Kevin Ginkel',b'Pierce Johnson',b'Daniel Hudson',b'Robert Suarez',b'Taylor Rogers',\
           ]
 
 tweaks = [b'Josh Hader',b'Dellin Betances',b'Zach Britton']
@@ -72,6 +81,7 @@ import src.predictiondata as predictiondata
 minyear,maxyear = 2017,2021
 minyear,maxyear = 2018,2022
 minyear,maxyear = 2019,2023
+minyear,maxyear = 2020,2024
 
 years = range(minyear,maxyear)
 
@@ -105,15 +115,41 @@ year_df,stereotype_df,dfnew,hitter_cluster_centroid_df = makeclusters.create_pit
 age_penalty_slope = 0.025 # I think 0.1 is AGGRESSIVE
 age_pivot = 33.0
 
+# now we need a pitching projection
+"""
+ST = np.genfromtxt('data/Stolen_IPs_0216.csv',delimiter=',',dtype=[('uid','i4'),('ip','f4'),('name','S20')],skip_header=1)
 
-ST = np.genfromtxt('data/Stolen_IPs_0216.csv',delimiter=',',\
-                  dtype=[('uid','i4'),('ip','f4'),('name','S20')],skip_header=1)
+ST = pd.read_csv('/Users/mpetersen/FantasyBaseball/pitching-rotations/data/consolidated-estimate-2023.csv')
 
-namelist = np.array([x.decode() for  x in ST['name']])
+print(ST['Player'])
+
+namelist = np.array(ST['Player'].values)
 IPDict = dict()
 for name in namelist:
-    IPDict[name] = ST['ip'][namelist==name]
+    try:
+        IPDict[name] = ST['consolidated'][namelist==name].values[0]
+    except:
+        print("trouble for {}".format(name))
+"""
 
+IPDict = dict()
+
+for name in lastyeardf['Name']:
+
+    try:
+        if IPDict[name] > 0.0:
+            continue
+    except:
+        print("going on for {}".format(name))
+
+    try:
+        IPDict[name] = lastyeardf['IP'][lastyeardf['Name']==name].values[0]
+    except:
+        IPDict[name] = 25.
+
+print(IPDict['Zack Greinke'])
+print(IPDict.keys())
+"""
 print(lastyeardf.keys())
 
 IPDict = dict()
@@ -122,6 +158,7 @@ for name in namelist:
         IPDict[name] = lastyeardf['IP'][lastyeardf['Name']==name].values
     except:
         IPDict[name] = 25.
+"""
 
 
 import src.projectplayers as projectplayers
@@ -224,7 +261,7 @@ import src.rankandprint as rprint
 # very first ranking
 # create blank svals for first sorting
 svals = np.zeros(len(ww))
-totrank = rprint.make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals)
+totrank,valrank = rprint.make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals)
 
 
 fantasy_stats = ['HR', 'ER', 'BB', 'H', 'SO']
@@ -234,11 +271,11 @@ LDict,MDict,HDict = rprint.make_mid_min_max(A,totrank,fantasy_stats,xvals,simple
 svals,esvals = pmodels.make_saves(A,totrank,closers,next_up,tweaks)
 
 # rerank with Saves
-totrank = rprint.make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals)
+totrank,valrank = rprint.make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals)
 
 
 printfile = 'predictions/pitcher_predictions'+savedate+'.tbl'
 rprint.print_html_ranks_pitching(printfile,A,totrank,LDict,MDict,HDict,era,eera,whip,ewhip,ww,eww,svals,esvals)
 
 printfile = 'predictions/pitcher_predictions_'+savedate+'.csv'
-rprint.print_csv_ranks_pitching(printfile,A,totrank,LDict,MDict,HDict,era,eera,whip,ewhip,ww,eww,svals,esvals)
+rprint.print_csv_ranks_pitching(printfile,A,totrank,valrank,LDict,MDict,HDict,era,eera,whip,ewhip,ww,eww,svals,esvals)

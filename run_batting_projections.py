@@ -13,6 +13,8 @@ import pandas as pd
 savedate = '022121'
 savedate = '030622'
 savedate = '010223'
+savedate = '021923'
+savedate = '111923'
 nclusters=12
 
 # new weights for January 4th 2021
@@ -33,6 +35,12 @@ year_weights[2019.0] = 0.07
 year_weights[2020.0] = 0.13
 year_weights[2021.0] = 0.3
 year_weights[2022.0] = 0.5
+
+year_weights = {}
+year_weights[2020.0] = 0.07
+year_weights[2021.0] = 0.13
+year_weights[2022.0] = 0.3
+year_weights[2023.0] = 0.5
 print(year_weights)
 
 
@@ -40,6 +48,7 @@ print(year_weights)
 import src.predictiondata as predictiondata
 
 minyear,maxyear = 2019,2023
+minyear,maxyear = 2020,2024
 years = range(minyear,maxyear)
 try: # is the relevant file already constructed?
     df = pd.read_csv('predictions/AllHitting_{}_{}.csv'.format(minyear,maxyear-1))
@@ -71,31 +80,46 @@ year_weights_penalty[2019.0] = 0.0#1
 year_weights_penalty[2020.0] = 0.0#5
 year_weights_penalty[2021.0] = 0.0#5
 year_weights_penalty[2022.0] = 0.0#5
+year_weights_penalty[2023.0] = 0.0#5
 
 # set regression factors
 regression_factor     = 0.8
 err_regression_factor = 0.8
 
-# bring in PA guesses
-ST = np.genfromtxt('data/Stolen_PAs_0216.csv',delimiter=',',\
-                  dtype=[('uid','i4'),('pa','f4'),('name','S20')],skip_header=1)
 
-namelist = np.array([x.decode() for  x in ST['name']])
+"""
+# to complete, we need PA predictions.
+ST = pd.read_csv('../batting-order/data/2023/estimated_batting_stats_2023.csv')
+
+
+namelist = np.array([x for  x in ST['player'].values])
+
+print(namelist)
+
 PADict = dict()
 for name in namelist:
-    PADict[name] = ST['pa'][namelist==name]
+    PADict[name] = ST['modelPAsG'][namelist==name]
 
+#f = open('data/estimated_batting_stats_2023.csv','w')
+#print('player,G22,G21,G20,PA,modelPAs162,modelPAsG',file=f)
 
+print(PADict)
 # reset PAs to be from last year only
 
 PADict = dict()
 for name in namelist:
     try:
-        PADict[name] = lastyeardf['PA'][lastyeardf['Name']==name].values
+        PADict[name] = PADict[name]
     except:
-        PADict[name] = [200.]
+        try:
+            PADict[name] = lastyeardf['PA'][lastyeardf['Name']==name].values
+        except:
+            PADict[name] = [200.]
+
+print(PADict)
 
 
+"""
 #consider age factors
 # for hitters, call the falloff at age 33:
 # de-weight anything after 33 with a penalty increasing with age
@@ -107,6 +131,10 @@ age_pivot         = 64.0
 import src.projectplayers as projectplayers
 
 pls = np.unique(np.array(list(df['Name'])))
+
+PADict = dict()
+for pl in pls:
+    PADict[pl] = 600.
 
 printfile = 'predictions/hitter_predictions'+savedate+'.dat'
 
@@ -137,7 +165,7 @@ A = np.genfromtxt(printfile,\
 import src.rankandprint as rprint
 
 # rank players
-totrank = rprint.roto_rank(A)
+totrank,sumrank = rprint.roto_rank(A)
 
 # create error bands
 fantasy_stats=['HR', 'H', 'AB', 'SB', 'RBI','R']
@@ -150,4 +178,4 @@ rprint.print_html_ranks(printfile,A,totrank,LDict,MDict,HDict)
 
 # make easier to read csv
 printfile = 'predictions/batter_predictions'+savedate+'.csv'
-rprint.print_csv_ranks(printfile,A,totrank,LDict,MDict,HDict)
+rprint.print_csv_ranks(printfile,A,totrank,sumrank,LDict,MDict,HDict)
