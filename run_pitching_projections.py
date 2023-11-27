@@ -13,7 +13,7 @@ savedate = '030622'
 savedate = '010223'
 savedate = '020923'
 savedate = '111923'
-
+savedate = '112723'
 nclusters=12
 
 # new weights for January 4th 2021
@@ -135,20 +135,20 @@ for name in namelist:
 IPDict = dict()
 
 for name in lastyeardf['Name']:
-
     try:
         if IPDict[name] > 0.0:
             continue
     except:
         print("going on for {}".format(name))
-
     try:
         IPDict[name] = lastyeardf['IP'][lastyeardf['Name']==name].values[0]
     except:
         IPDict[name] = 25.
 
 print(IPDict['Zack Greinke'])
-print(IPDict.keys())
+print(IPDict['Jose Berrios'])
+
+#print(IPDict.keys())
 """
 print(lastyeardf.keys())
 
@@ -164,6 +164,18 @@ for name in namelist:
 import src.projectplayers as projectplayers
 
 pls = np.unique(np.array(list(df['Name'])))
+
+minG = 5
+pls1 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2023))])))
+pls2 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2022))])))
+pls3 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2021))])))
+pls4 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2020))])))
+
+pls = np.unique(np.concatenate([pls1,pls2,pls3,pls4]))
+
+#pls = np.unique(np.array(list(df['Name'])))
+
+print('Projecting {} players'.format(pls.size))
 
 printfile = 'predictions/pitcher_predictions'+savedate+'.dat'
 
@@ -278,4 +290,5 @@ printfile = 'predictions/pitcher_predictions'+savedate+'.tbl'
 rprint.print_html_ranks_pitching(printfile,A,totrank,LDict,MDict,HDict,era,eera,whip,ewhip,ww,eww,svals,esvals)
 
 printfile = 'predictions/pitcher_predictions_'+savedate+'.csv'
-rprint.print_csv_ranks_pitching(printfile,A,totrank,valrank,LDict,MDict,HDict,era,eera,whip,ewhip,ww,eww,svals,esvals)
+#rprint.print_csv_ranks_pitching(printfile,A,totrank,valrank,LDict,MDict,HDict,era,eera,whip,ewhip,ww,eww,svals,esvals)
+rprint.print_csv_ranks_pitching(printfile,A,totrank,LDict,MDict,HDict,era,eera,whip,ewhip,ww,eww,svals,esvals)

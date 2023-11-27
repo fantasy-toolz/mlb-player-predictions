@@ -39,7 +39,7 @@ def make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals):
         else:
             sumrank += ss.rankdata(-1.*vec)
 
-    return ss.rankdata(sumrank)
+    return ss.rankdata(sumrank),sumrank
 
 
 

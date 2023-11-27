@@ -144,15 +144,16 @@ def predict_pitchers(pls,years,printfile,AgeDict,IPDict,df,hitter_cluster_centro
         if pl in skiplist:
             continue
 
-        # match to stolen IPs
+        # match to IP predictions
         try:
             #ip = ST['ip'][namelist==pl][0]
-            ip = IPDict[pl][0]#df['IP'][(df['Year']==2021.0) & (df['Name']==pl)].values[0]
+            ip = IPDict[pl]#df['IP'][(df['Year']==2021.0) & (df['Name']==pl)].values[0]
         except:
             pass
             #print(pl)
             ip = 5.
         #print(ip_s)
+        #print('Found {}IP for {}'.format(ip,pl))
 
         try:
             age = float(AgeDict[pl])
@@ -201,10 +202,11 @@ def predict_pitchers(pls,years,printfile,AgeDict,IPDict,df,hitter_cluster_centro
                 #stereotype_df['{0}.Normalize'.format(stat)] = stereotype_df['{0}.Normalize'.format(stat)] - stereotype_df['{0}.Normalize'.format(stat)] % 1
             except:
                 #yrsum += year_weights_penalty[year]
+                #print('failed year for {}: {}'.format(pl,year))
                 yrsum_denom += year_weights_penalty[year]
                 age_penalty = age_penalty_slope * ((age-age_pivot) + (year-2018.))
                 yrsum -= np.max([age_penalty,0.0])
-            #print(yrsum)
+            #print('Running yrsum for {}: {}, {}'.format(pl,year,yrsum))
 
         if nyrs < 0.5: nyrs=1000.
 
