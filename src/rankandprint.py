@@ -26,18 +26,20 @@ def roto_rank(A):
 
 
 
-def make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals):
+def make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals,weights=[1.0,1.0,1.0,1.0,1.0,1.0]):
+    # weights is [ip,so,era,whip,w,svals]
     sumrank = np.zeros(A['Name'].size)
 
     #for vec in [A['IP'],A['SO'],era,whip,ww]:
     tSO = np.max([A['eSO'],np.sqrt(A['SO'])],axis=0)
 
-    # double up on IP to get rid of the low IP guys
-    for vec in [A['IP'],A['IP'],A['SO'],era,whip,ww,svals]:
+    # old strategy: double up on IP to get rid of the low IP guys
+    # removed on 26 December 2023
+    for ivec,vec in enumerate([A['IP'],A['SO'],era,whip,ww,svals]):
         if (vec[0]==era[0]) | (vec[0]==whip[0]) | (vec[0]==eera[0]) | (vec[0]==ewhip[0]):
-            sumrank += ss.rankdata(vec)
+            sumrank += weights[ivec]*ss.rankdata(vec)
         else:
-            sumrank += ss.rankdata(-1.*vec)
+            sumrank += weights[ivec]*ss.rankdata(-1.*vec)
 
     return ss.rankdata(sumrank),sumrank
 
@@ -153,10 +155,6 @@ def print_html_ranks(printfile,A,totrank,LDict,MDict,HDict):
 def print_csv_ranks(printfile,A,totrank,LDict,MDict,HDict):
 
     f = open(printfile,'w')
-
-
-
-
 
     print('Name,PA,AVG,eAVG,HR,eHR,R,eR,RBI,eRBI,SB,eSB,Rank,',file=f)
 

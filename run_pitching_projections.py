@@ -14,6 +14,8 @@ savedate = '010223'
 savedate = '020923'
 savedate = '111923'
 savedate = '112723'
+savedate = '122623c'
+
 nclusters=12
 
 # new weights for January 4th 2021
@@ -160,7 +162,7 @@ for name in namelist:
         IPDict[name] = 25.
 """
 
-
+# make a threshold that only gives starters
 import src.projectplayers as projectplayers
 
 pls = np.unique(np.array(list(df['Name'])))
@@ -273,6 +275,7 @@ import src.rankandprint as rprint
 # very first ranking
 # create blank svals for first sorting
 svals = np.zeros(len(ww))
+
 totrank,valrank = rprint.make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals)
 
 
@@ -283,7 +286,14 @@ LDict,MDict,HDict = rprint.make_mid_min_max(A,totrank,fantasy_stats,xvals,simple
 svals,esvals = pmodels.make_saves(A,totrank,closers,next_up,tweaks)
 
 # rerank with Saves
-totrank,valrank = rprint.make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals)
+# and weight categories again
+# [ip,so,era,whip,w,svals]
+weights = [1.0,2.0,1.0,1.0,0.5,1.0]
+weights = [1.0,2.0,0.5,1.0,0.5,1.0] # a
+weights = [1.0,2.0,1.0,1.0,0.0,1.0] # b
+weights = [0.5,2.0,1.0,1.0,0.0,1.0] # c
+
+totrank,valrank = rprint.make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals,weights=weights)
 
 
 printfile = 'predictions/pitcher_predictions'+savedate+'.tbl'
