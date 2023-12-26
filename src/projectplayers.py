@@ -28,16 +28,30 @@ def predict_players(pls,years,printfile,AgeDict,PADict,df,hitter_cluster_centroi
         if pl in skiplist:
             continue
 
+        watchlist = ['Bobby Witt Jr.','Michael Harris II','Fernando Tatis Jr.','Daulton Varsho','Vinnie Pasquantino','Corbin Carroll','Jake McCarthy','Ketel Marte','Ezequiel Tovar']
+        #if pl in watchlist:
+        #    print(pl)
+
         # match to stolen IPs
         try:
+            if pl in watchlist:
+                print(pl)
+                print(PADict[pl])
             #pa = ST['pa'][namelist==pl][0]
             pa = PADict[pl][0]
             #pa = df['PA'][(df['Name']==pl) & (df['Year']==2021.0) ].values[0]
             #print(pa)
         except:
-            pass
+            try:
+                pa = PADict[pl]
+                print('Step 2 for {}'.format(pl))
+            except:
+                pass
             #print(pl)
         #print(ip_s)
+
+        if pl == 'Fernando Tatis Jr.':
+            pa = 320.
 
         # try to get ages
         #print(pl)
@@ -95,6 +109,8 @@ def predict_players(pls,years,printfile,AgeDict,PADict,df,hitter_cluster_centroi
 
         #print(pl,yrsum,yrsum_denom)
         #print(pskew-(perr*perr))
+        if pl in watchlist:
+            print(pl,pa,yrsum,yrsum_denom)
 
         #print(ab)
         if pa > 100:
@@ -147,7 +163,9 @@ def predict_pitchers(pls,years,printfile,AgeDict,IPDict,df,hitter_cluster_centro
         # match to stolen IPs
         try:
             #ip = ST['ip'][namelist==pl][0]
-            ip = IPDict[pl][0]#df['IP'][(df['Year']==2021.0) & (df['Name']==pl)].values[0]
+            #print(pl)
+            ip = IPDict[pl]#[0]#df['IP'][(df['Year']==2021.0) & (df['Name']==pl)].values[0]
+            print(pl,ip)
         except:
             pass
             #print(pl)

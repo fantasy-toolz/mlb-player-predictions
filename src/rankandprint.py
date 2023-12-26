@@ -8,26 +8,37 @@ import scipy.stats as ss
 import scipy
 
 def roto_rank(A):
+    """create roto ranks from projections
 
+    this is THE ALGORITHM that determines value.
+
+    we overweight HR (1.4 prefac)
+    we underweight SB (0.9 prefac)
+    """
     sumrank = np.zeros(A['Name'].size)
+    valrank = np.zeros(A['Name'].size)
 
     for ivec,vec in enumerate([A['HR'],(A['H']+A['HR']),A['RBI'],A['R'],A['SB']]):
 
         if ivec==0:
             sumrank += 1.4*ss.rankdata(-1.*A['PA']*vec/100.)
+            valrank += 1.4*ss.rankdata(1.*A['PA']*vec/100.)
         elif ivec==4:
             sumrank += 0.9*ss.rankdata(-1.*A['PA']*vec/100.)
+            valrank += 0.9*ss.rankdata(1.*A['PA']*vec/100.)
         else:
             sumrank += ss.rankdata(-1.*A['PA']*vec/100.)
+            valrank += ss.rankdata(1.*A['PA']*vec/100.)
 
 
     totrank = ss.rankdata(sumrank)
-    return totrank
+    return totrank,valrank
 
 
 
 def make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals):
     sumrank = np.zeros(A['Name'].size)
+    valrank = np.zeros(A['Name'].size)
 
     #for vec in [A['IP'],A['SO'],era,whip,ww]:
     tSO = np.max([A['eSO'],np.sqrt(A['SO'])],axis=0)
@@ -36,10 +47,12 @@ def make_totrank_pitching(A,era,eera,whip,ewhip,ww,svals):
     for vec in [A['IP'],A['IP'],A['SO'],era,whip,ww,svals]:
         if (vec[0]==era[0]) | (vec[0]==whip[0]) | (vec[0]==eera[0]) | (vec[0]==ewhip[0]):
             sumrank += ss.rankdata(vec)
+            valrank += ss.rankdata(-1.*vec)
         else:
             sumrank += ss.rankdata(-1.*vec)
+            valrank += ss.rankdata(vec)
 
-    return ss.rankdata(sumrank)
+    return ss.rankdata(sumrank),valrank
 
 
 
@@ -128,7 +141,8 @@ def print_html_ranks(printfile,A,totrank,LDict,MDict,HDict):
 
         if ((A['PA'][indx] > 0) & (MDict['H'][indx] > 0.05)):
 
-            print('<tr><td><a href=\"'+'batters/player{}.html'.format(indx)+'\">',A['Name'][indx].decode(),'</a></td><td>',int(A['PA'][indx]),'</td><td>',\
+            #print('<tr><td><a href=\"'+'batters/player{}.html'.format(indx)+
+            print('<tr><td>',A['Name'][indx].decode(),'</td><td>',int(A['PA'][indx]),'</td><td>',\
              np.round(((0.93*MDict['H']+MDict['HR'])/(1.0*A['AB'])),3)[indx],'</td><td>',\
                   np.round((((0.93*MDict['H']+LDict['HR']))/(1.0*A['AB'])),3)[indx],'</td><td>',\
                   np.round((((0.93*MDict['H']+HDict['HR']))/(1.0*A['AB'])),3)[indx],'</td><td>',\
@@ -150,15 +164,11 @@ def print_html_ranks(printfile,A,totrank,LDict,MDict,HDict):
     f.close()
 
 
-def print_csv_ranks(printfile,A,totrank,LDict,MDict,HDict):
+def print_csv_ranks(printfile,A,totrank,sumrank,LDict,MDict,HDict):
 
     f = open(printfile,'w')
 
-
-
-
-
-    print('Name,PA,AVG,eAVG,HR,eHR,R,eR,RBI,eRBI,SB,eSB,Rank,',file=f)
+    print('Name,PA,AVG,eAVG,HR,eHR,R,eR,RBI,eRBI,SB,eSB,Rank,Value,',file=f)
 
     for pl,indx in enumerate((totrank).argsort()):
         #print(A['Name'][indx])
@@ -168,12 +178,12 @@ def print_csv_ranks(printfile,A,totrank,LDict,MDict,HDict):
             try:
                 print(A['Name'][indx].decode(),',',int(A['PA'][indx]),',',\
                  np.round(((A['H']+A['HR'])/A['AB']),3)[indx],',',\
-                  0.5*np.round(np.max([((A['eH']+A['eHR'])/A['AB']),(((A['H']+A['HR'])/A['AB']))**2.],axis=0)[indx],3),',',\
+                  np.round(0.5*np.max([((A['eH']+A['eHR'])/A['AB']),(((A['H']+A['HR'])/A['AB']))**2.],axis=0)[indx],3),',',\
                  int((A['PA']*A['HR']/100.)[indx]),',',int(np.max([(A['PA']*A['eHR']/100.)[indx],(np.sqrt(A['PA']*A['HR']/100.))[indx]])),',',\
                  int((A['PA']*A['R']/100.)[indx]),',',int(np.max([(A['PA']*A['eR']/100.)[indx],(np.sqrt(A['PA']*A['R']/100.))[indx]])),',',\
                  int((A['PA']*A['RBI']/100.)[indx]),',',int(np.max([(A['PA']*A['eRBI']/100.)[indx],(np.sqrt(A['PA']*A['RBI']/100.))[indx]])),',',\
                  int((A['PA']*A['SB']/100.)[indx]),',',int(np.max([(A['PA']*A['eSB']/100.)[indx],(np.sqrt(A['PA']*A['SB']/100.))[indx]])),',',\
-                int(totrank[indx]),',',file=f)
+                int(totrank[indx]),',',int(sumrank[indx]),',',file=f)
             except:
                 pass
 
@@ -231,10 +241,10 @@ def print_html_ranks_pitching(printfile,A,totrank,LDict,MDict,HDict,era,eera,whi
 
 
 
-def print_csv_ranks_pitching(printfile,A,totrank,LDict,MDict,HDict,era,eera,whip,ewhip,ww,eww,svals,esvals):
+def print_csv_ranks_pitching(printfile,A,totrank,valrank,LDict,MDict,HDict,era,eera,whip,ewhip,ww,eww,svals,esvals):
     f = open(printfile,'w')
 
-    print('Name,IP,SO,eSO,ERA,eERA,WHIP,eWHIP,W,eW,S,eS,Rank,',file=f)
+    print('Name,IP,SO,eSO,ERA,eERA,WHIP,eWHIP,W,eW,S,eS,Rank,Value,',file=f)
 
     for pl,indx in enumerate((totrank).argsort()):
         #print(A['Name'][indx])
@@ -245,6 +255,6 @@ def print_csv_ranks_pitching(printfile,A,totrank,LDict,MDict,HDict,era,eera,whip
              np.round(whip[indx],2),',',np.round(ewhip[indx],2),',',\
              int(np.nanmax([ww[indx],0.])),',',int(np.nanmax([eww[indx],4.])),',',\
              svals[indx],',',esvals[indx],',',\
-             int(totrank[indx]),',',file=f)
+             int(totrank[indx]),',',int(valrank[indx]),',',file=f)
 
     f.close()
