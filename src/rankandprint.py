@@ -22,7 +22,7 @@ def roto_rank(A):
 
 
     totrank = ss.rankdata(sumrank)
-    return totrank
+    return totrank,sumrank
 
 
 
@@ -130,7 +130,8 @@ def print_html_ranks(printfile,A,totrank,LDict,MDict,HDict):
 
         if ((A['PA'][indx] > 0) & (MDict['H'][indx] > 0.05)):
 
-            print('<tr><td><a href=\"'+'batters/player{}.html'.format(indx)+'\">',A['Name'][indx].decode(),'</a></td><td>',int(A['PA'][indx]),'</td><td>',\
+            #print('<tr><td><a href=\"'+'batters/player{}.html'.format(indx)+'\">',A['Name'][indx].decode(),'</a></td><td>',int(A['PA'][indx]),'</td><td>',\
+            print('<tr><td>',A['Name'][indx].decode(),'</td><td>',int(A['PA'][indx]),'</td><td>',\
              np.round(((0.93*MDict['H']+MDict['HR'])/(1.0*A['AB'])),3)[indx],'</td><td>',\
                   np.round((((0.93*MDict['H']+LDict['HR']))/(1.0*A['AB'])),3)[indx],'</td><td>',\
                   np.round((((0.93*MDict['H']+HDict['HR']))/(1.0*A['AB'])),3)[indx],'</td><td>',\
@@ -152,7 +153,7 @@ def print_html_ranks(printfile,A,totrank,LDict,MDict,HDict):
     f.close()
 
 
-def print_csv_ranks(printfile,A,totrank,LDict,MDict,HDict):
+def print_csv_ranks(printfile,A,totrank,sumrank,LDict,MDict,HDict):
 
     f = open(printfile,'w')
 
@@ -166,7 +167,7 @@ def print_csv_ranks(printfile,A,totrank,LDict,MDict,HDict):
             try:
                 print(A['Name'][indx].decode(),',',int(A['PA'][indx]),',',\
                  np.round(((A['H']+A['HR'])/A['AB']),3)[indx],',',\
-                  0.5*np.round(np.max([((A['eH']+A['eHR'])/A['AB']),(((A['H']+A['HR'])/A['AB']))**2.],axis=0)[indx],3),',',\
+                  np.round(0.5*np.max([((A['eH']+A['eHR'])/A['AB']),(((A['H']+A['HR'])/A['AB']))**2.],axis=0)[indx],3),',',\
                  int((A['PA']*A['HR']/100.)[indx]),',',int(np.max([(A['PA']*A['eHR']/100.)[indx],(np.sqrt(A['PA']*A['HR']/100.))[indx]])),',',\
                  int((A['PA']*A['R']/100.)[indx]),',',int(np.max([(A['PA']*A['eR']/100.)[indx],(np.sqrt(A['PA']*A['R']/100.))[indx]])),',',\
                  int((A['PA']*A['RBI']/100.)[indx]),',',int(np.max([(A['PA']*A['eRBI']/100.)[indx],(np.sqrt(A['PA']*A['RBI']/100.))[indx]])),',',\

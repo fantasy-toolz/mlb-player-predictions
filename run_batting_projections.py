@@ -9,142 +9,59 @@ pip install html5lib
 import numpy as np
 import pandas as pd
 
+# set up the parameters
+analysis_year         = 2025 # what year are we projecting?
+savedate              = '011925' # arbitrary tag for saving files
+nclusters             = 12 # how many archetypes are there?
+weight_distribution   = [0.5, 0.3, 0.13, 0.07] # how much do the past four years contribute?
+regression_factor     = 0.8 # how much regression to the mean?
+err_regression_factor = 0.8 # how much uncertainty in the regression to the mean?
 
-savedate = '022121'
-savedate = '030622'
-savedate = '010223'
-savedate = '021923'
-savedate = '111923'
-nclusters=12
-
-# new weights for January 4th 2021
-year_weights = {}
-year_weights[2017.0] = 0.07
-year_weights[2018.0] = 0.13
-year_weights[2019.0] = 0.3
-year_weights[2020.0] = 0.5
-
-year_weights = {}
-year_weights[2018.0] = 0.07
-year_weights[2019.0] = 0.13
-year_weights[2020.0] = 0.3
-year_weights[2021.0] = 0.5
-
-year_weights = {}
-year_weights[2019.0] = 0.07
-year_weights[2020.0] = 0.13
-year_weights[2021.0] = 0.3
-year_weights[2022.0] = 0.5
-
-year_weights = {}
-year_weights[2020.0] = 0.07
-year_weights[2021.0] = 0.13
-year_weights[2022.0] = 0.3
-year_weights[2023.0] = 0.5
-print(year_weights)
+year_weights = dict()
+for year in range(analysis_year-1,analysis_year-5,-1):
+    year_weights[year] = weight_distribution[analysis_year-year-1]
 
 
-# obtain the data
-import src.predictiondata as predictiondata
+# obtain the data: this should be changed to be statscraping
+import mlbstatscraping as mss
 
-minyear,maxyear = 2019,2023
-minyear,maxyear = 2020,2024
-years = range(minyear,maxyear)
-try: # is the relevant file already constructed?
-    df = pd.read_csv('predictions/AllHitting_{}_{}.csv'.format(minyear,maxyear-1))
-except:
-    df = predictiondata.grab_fangraphs_data(years)
-    df.to_csv('predictions/AllHitting_{}_{}.csv'.format(minyear,maxyear-1))
-
-lastyear = maxyear-1
-try:
-    lastyeardf = pd.read_csv('predictions/AllHitting_{}.csv'.format(lastyear))
-except:
-    lastyeardf = predictiondata.grab_fangraphs_data([lastyear])
-    lastyeardf.to_csv('predictions/AllHitting_{}.csv'.format(lastyear))
-    lastyeardf = pd.read_csv('predictions/AllHitting_{}.csv'.format(lastyear))
+years = range(analysis_year-4,analysis_year)
+for year in years:
+    HittingDF = mss.get_fangraphs_data('hitting',[year])
+    HittingDF.to_csv('data/AllHitting_{}.csv'.format(year),index=False)
+    lastyeardf = HittingDF
+    if year == analysis_year-4:
+        df = HittingDF
+    else:
+        df = pd.concat([df,HittingDF])
 
 
 # use 12 clusters
 import src.makeclusters as makeclusters
 year_df,stereotype_df,dfnew,hitter_cluster_centroid_df = makeclusters.create_hitting_clusters(df,nclusters,years)
+pls = np.unique(np.array(list(df['Name'])))
 
 
+# get plate appearances
+import src.plateappearances as plateappearances
+#PADict = plateappearances.get_plate_appearances(pls)
+PADict = plateappearances.forecast_600(pls)
 
-
-# penalty if missing: disabled for now
-year_weights_penalty = {}
-year_weights_penalty[2017.0] = 0.00
-year_weights_penalty[2018.0] = 0.0#5
-year_weights_penalty[2019.0] = 0.0#1
-year_weights_penalty[2020.0] = 0.0#5
-year_weights_penalty[2021.0] = 0.0#5
-year_weights_penalty[2022.0] = 0.0#5
-year_weights_penalty[2023.0] = 0.0#5
-
-# set regression factors
-regression_factor     = 0.8
-err_regression_factor = 0.8
-
-
-"""
-# to complete, we need PA predictions.
-ST = pd.read_csv('../batting-order/data/2023/estimated_batting_stats_2023.csv')
-
-
-namelist = np.array([x for  x in ST['player'].values])
-
-print(namelist)
-
-PADict = dict()
-for name in namelist:
-    PADict[name] = ST['modelPAsG'][namelist==name]
-
-#f = open('data/estimated_batting_stats_2023.csv','w')
-#print('player,G22,G21,G20,PA,modelPAs162,modelPAsG',file=f)
-
-print(PADict)
-# reset PAs to be from last year only
-
-PADict = dict()
-for name in namelist:
-    try:
-        PADict[name] = PADict[name]
-    except:
-        try:
-            PADict[name] = lastyeardf['PA'][lastyeardf['Name']==name].values
-        except:
-            PADict[name] = [200.]
-
-print(PADict)
-
-
-"""
-#consider age factors
-# for hitters, call the falloff at age 33:
-# de-weight anything after 33 with a penalty increasing with age
-age_penalty_slope = 0.07 # I think 0.1 is AGGRESSIVE
-age_pivot         = 64.0
-
+# add optional age adjustments
+import src.ageregression as ageregression
+year_weights_penalty, age_penalty_slope, age_pivot = ageregression.return_age_factors()
 
 # set up the projections
 import src.projectplayers as projectplayers
 
-pls = np.unique(np.array(list(df['Name'])))
 
-PADict = dict()
-for pl in pls:
-    PADict[pl] = 600.
-
-printfile = 'predictions/hitter_predictions'+savedate+'.dat'
+printfile = 'predictions/hitter_predictions_{}_'.format(analysis_year)+savedate+'.dat'
 
 ShouldProject = projectplayers.predict_players(pls,years,printfile,dict(),PADict,dfnew,hitter_cluster_centroid_df,year_weights,year_weights_penalty,regression_factor,err_regression_factor,age_penalty_slope,age_pivot)
 
 
 print(ShouldProject)
 
-printfile = 'predictions/predictit_b'+savedate+'.dat'
-printfile = 'predictions/hitter_predictions'+savedate+'.dat'
 
 A = np.genfromtxt(printfile,\
 
@@ -173,7 +90,7 @@ xvals = np.linspace(0.,120.,1000)
 LDict,MDict,HDict = rprint.make_mid_min_max(A,totrank,fantasy_stats,xvals)
 
 # make html table
-printfile = 'predictions/batter_predictions'+savedate+'.tbl'
+printfile = 'predictions/batter_predictions_{}_{}.tbl'.format(analysis_year,savedate)
 rprint.print_html_ranks(printfile,A,totrank,LDict,MDict,HDict)
 
 # make easier to read csv

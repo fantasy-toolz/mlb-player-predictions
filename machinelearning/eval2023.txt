@@ -1,0 +1,105 @@
+true,predicted,sigma,name
+ 2,4.31,1.23,Brock Stewart                 
+ 4,3.72,0.80,Chris Martin                  
+ 4,3.60,0.74,Brusdar Graterol              
+ 2,4.30,1.51,Josh Hader                    
+ 1,4.62,1.35,Shawn Armstrong               
+ 8,4.95,2.28,Felix Bautista                
+ 3,3.60,0.61,Tim Mayza                     
+ 8,4.20,1.33,Devin Williams                
+ 1,3.87,0.76,Jesse Chavez                  
+ 6,3.94,0.84,Hector Neris                  
+ 3,4.02,0.93,Shelby Miller                 
+ 1,4.36,1.20,Bowden Francis                
+ 0,4.10,1.10,Jose Alvarado                 
+ 3,4.24,1.12,Bryan Abreu                   
+ 1,3.51,0.78,Tom Cosgrove                  
+ 1,3.82,1.18,Abner Uribe                   
+ 2,4.13,1.10,Hoby Milner                   
+ 3,4.44,1.86,David Bednar                  
+ 1,4.04,1.13,Trent Thornton                
+ 2,4.09,1.15,Evan Phillips                 
+ 1,3.68,0.71,Yennier Cano                  
+ 3,4.21,1.16,Tyler Holton                  
+ 3,4.18,1.10,Jay Jackson                   
+ 2,5.16,1.98,Ryan Pepiot                   
+12,3.54,0.50,Colin Poche                   
+14,7.47,3.17,Blake Snell                   
+ 3,3.44,0.44,Carmen Mlodzinski             
+ 5,6.62,2.11,Brandon Woodruff              
+ 9,4.43,1.28,Tanner Scott                  
+ 5,4.69,1.58,Jeff Hoffman                  
+ 3,4.17,1.33,Jhoan Duran                   
+ 3,4.46,1.26,Ryan Helsley                  
+ 4,5.11,1.93,Ryan Borucki                  
+13,7.26,2.61,Clayton Kershaw               
+ 9,3.86,0.94,Kevin Ginkel                  
+ 7,3.95,0.76,Joel Payamps                  
+ 8,5.61,1.48,Max Fried                     
+ 5,3.85,0.67,Matt Moore                    
+ 2,4.28,1.23,Pete Fairbanks                
+ 6,3.53,0.57,Bryse Wilson                  
+ 5,3.39,0.53,Justin Topa                   
+ 3,3.45,0.51,Jason Foley                   
+ 4,4.88,1.26,Drew Rasmussen                
+ 4,3.89,1.09,Dustin May                    
+15,9.21,3.47,Gerrit Cole                   
+ 3,3.90,0.77,Ian Hamilton                  
+ 1,3.85,0.81,Tommy Kahnle                  
+ 1,3.27,0.70,Nick Ramirez                  
+ 8,3.91,0.73,Andrew Nardi                  
+ 2,6.57,2.72,Jacob deGrom                  
+ 2,3.85,0.90,Adbert Alzolay                
+ 0,3.62,0.73,Jose Leclerc                  
+ 5,3.78,1.16,Raisel Iglesias               
+ 4,4.78,1.00,Michael King                  
+ 8,7.78,2.92,Sonny Gray                    
+ 1,3.53,0.49,Brooks Raley                  
+ 7,7.14,2.53,Tarik Skubal                  
+ 5,3.86,0.76,Danny Coulombe                
+ 4,3.98,0.74,Hunter Harvey                 
+ 4,3.61,0.71,Isaiah Campbell               
+12,8.37,3.33,Kyle Bradish                  
+ 4,3.37,0.64,Wandy Peralta                 
+ 4,3.72,0.73,Clay Holmes                   
+ 2,3.44,0.50,Randy Vasquez                 
+ 4,3.33,0.40,Josh Winckowski               
+ 4,3.37,0.46,Joey Lucchesi                 
+ 5,4.02,1.50,Jordan Romano                 
+ 6,4.03,1.37,Camilo Doval                  
+ 4,3.91,0.93,Andres Munoz                  
+ 2,3.84,0.82,Luke Jackson                  
+ 4,3.75,0.61,Erik Swanson                  
+12,7.75,2.77,Kodai Senga                   
+10,7.14,2.28,Tanner Bibee                  
+ 2,3.48,0.63,Austin Pruitt                 
+ 2,4.32,1.05,Will Vest                     
+ 4,3.92,0.80,Jason Adam                    
+ 5,3.82,0.78,Emilio Pagan                  
+ 4,3.63,0.53,Phil Maton                    
+ 3,3.49,0.73,Ryan Brasier                  
+ 6,3.63,0.61,David Robertson               
+ 2,3.48,0.57,Sam Moll                      
+ 0,3.91,0.80,Joe Jimenez                   
+ 4,3.37,0.42,Tyler Rogers                  
+ 5,4.00,0.67,Javier Assad                  
+10,6.29,1.96,Joe Musgrove                  
+ 4,3.57,0.55,Nick Anderson                 
+ 9,4.06,0.96,Matt Brash                    
+16,7.93,2.97,Justin Steele                 
+ 9,3.99,1.84,Alexis Diaz                   
+ 6,3.80,1.10,Aroldis Chapman               
+ 5,3.72,1.01,Kevin Kelly                   
+ 3,4.63,1.47,Robert Stephenson             
+ 7,3.67,0.95,Lucas Sims                    
+ 3,4.04,1.45,Paul Sewald                   
+ 5,3.37,0.42,Kendall Graveman              
+10,7.66,2.67,Shohei Ohtani                 
+ 9,5.87,1.79,Wade Miley                    
+ 5,6.31,2.02,Eury Perez                    
+ 1,4.43,1.32,Tyler Mahle                   
+12,9.17,3.93,Kevin Gausman                 
+10,8.48,2.81,Jordan Montgomery             
+ 2,3.83,0.74,Brennan Bernardino            
+ 1,3.50,0.58,Adam Ottavino                 
+13,7.31,2.53,Justin Verlander  

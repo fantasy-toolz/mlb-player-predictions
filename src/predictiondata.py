@@ -40,14 +40,18 @@ def grab_fangraphs_data(years):
     return df
 
 
-def grab_fangraphs_pitching_data(years):
-    url      =   "https://www.fangraphs.com/leaders-legacy.aspx?pos=all&stats=pit&lg=all&qual=0&type=0&season={0}&month=0&season1={0}&ind=0&team=0&rost=0&age=0&filter=&players=0&page=1_1000"
+def grab_fangraphs_pitching_data(years,type=0):
+    """
+    type=0 is standard
+    type=1 is advanced
+    """
+    url      =   "https://www.fangraphs.com/leaders-legacy.aspx?pos=all&stats=pit&lg=all&qual=0&type={1}&season={0}&month=0&season1={0}&ind=0&team=0&rost=0&age=0&filter=&players=0&page=1_1000"
 
     year_dfs = []
 
     for year in years:
         print('The year is {}'.format(year))
-        r               = requests.get(url.format(year))
+        r               = requests.get(url.format(year,type))
         soup            = BeautifulSoup(r.text, "html5lib")
         table_data      = soup.find("table", { "class" : "rgMasterTable"})
 

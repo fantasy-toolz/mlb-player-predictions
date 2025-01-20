@@ -15,6 +15,8 @@ savedate = '020923'
 savedate = '111923'
 savedate = '112723'
 savedate = '122623c'
+savedate = '012824'
+savedate = '022624'
 
 nclusters=12
 
@@ -76,6 +78,9 @@ next_up = [b'Cionel Perez',b'Chris Martin',b'Jonathan Loaisiga',b'Jason Adam',b'
 
 tweaks = [b'Josh Hader',b'Dellin Betances',b'Zach Britton']
 
+closers = [b'Paul Sewald',b'Raisel Iglesias',b'Craig Kimbrel',b'Kenley Jansen',b'Adbert Alzolay',b'John Brebbia',b'Alexis Diaz',b'Emmanuel Clase',b'Justin Lawrence',b'Alex Lange',b'Josh Hader',b'Will Smith',b'James McArthur',b'John McMillon',b'John Schreiber',b'Carlos Estevez',b'Robert Stephenson',b'Evan Phillips',b'Tanner Scott',b'Devin Williams',b'Jhoan Duran',b'Edwin Diaz',b'Clay Holmes',b'Mason Miller',b'Lucas Erceg',b'Trevor Gott',b'Dany Jimenez',b'Jose Alvarado',b'Jeff Hoffman',b'David Bednar',b'Ryan Helsley',b'Robert Suarez',b'Camilo Doval',b'Andres Munoz',b'Pete Fairbanks',b'Jose Leclerc',b'David Robertson',b'Jordan Romano',b'Kyle Finnegan',b'Hunter Harvey']
+next_up = [b'Kevin Ginkel',b'Miguel Castro',b'A.J. Minter',b'Pierce Johnson',b'Yennier Cano',b'Danny Coulombe',b'Chris Martin',b'Josh Winckowski',b'Hector Neris',b'Julian Merryweather',b'Jesse Chavez',b'Bryan Shaw',b'Emilio Pagan',b'Lucas Sims',b'Scott Barlow',b'Trevor Stephan',b'Tyler Kinley',b'Daniel Bard',b'Jason Foley',b'Andrew Chafin',b'Ryan Pressly',b'Bryan Abreu',b'Matt Moore',b'Brusdar Graterol',b'Joe Kelly',b'Andrew Nardi',b'AJ Puk',b'Joel Payamps',b'Trevor Megill',b'Griffin Jax',b'Brock Stewart',b'Addam Ottavino',b'Drew Smith',b'Tommy Kahnle',b'Jonathan Loaisiga',b'Gregory Soto',b'Aroldis Chapman',b'Colin Holderman',b'Giovanny Gallegos',b'JoJo Romero',b'Yuki Matsui',b'Enyel De Los Santos',b'Tyler Rogers',b'Taylor Rogers',b'Matt Brash',b'Gregory Santos',b'Jason Adam',b'Colin Poche',b'Josh Sborz',b'Erik Swanson',b'Tim Mayza',b'Tanner Rainey']
+tweaks = []
 
 # obtain the data
 import src.predictiondata as predictiondata
@@ -84,6 +89,7 @@ minyear,maxyear = 2017,2021
 minyear,maxyear = 2018,2022
 minyear,maxyear = 2019,2023
 minyear,maxyear = 2020,2024
+minyear,maxyear = 2023,2024
 
 years = range(minyear,maxyear)
 
@@ -120,8 +126,8 @@ age_pivot = 33.0
 # now we need a pitching projection
 """
 ST = np.genfromtxt('data/Stolen_IPs_0216.csv',delimiter=',',dtype=[('uid','i4'),('ip','f4'),('name','S20')],skip_header=1)
-
-ST = pd.read_csv('/Users/mpetersen/FantasyBaseball/pitching-rotations/data/consolidated-estimate-2023.csv')
+"""
+ST = pd.read_csv('data/consolidated-ip-estimate-2024.csv')
 
 print(ST['Player'])
 
@@ -129,23 +135,25 @@ namelist = np.array(ST['Player'].values)
 IPDict = dict()
 for name in namelist:
     try:
-        IPDict[name] = ST['consolidated'][namelist==name].values[0]
+        IPDict[name] = ST['regression'][namelist==name].values[0]
     except:
         print("trouble for {}".format(name))
-"""
 
-IPDict = dict()
+print(IPDict)
+#IPDict = dict()
 
 for name in lastyeardf['Name']:
     try:
         if IPDict[name] > 0.0:
+            print('Good IP for {}'.format(name))
             continue
     except:
         print("going on for {}".format(name))
     try:
         IPDict[name] = lastyeardf['IP'][lastyeardf['Name']==name].values[0]
     except:
-        IPDict[name] = 25.
+        IPDict[name] = 60. # set the closer default
+
 
 print(IPDict['Zack Greinke'])
 print(IPDict['Jose Berrios'])
@@ -172,6 +180,14 @@ pls1 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2023
 pls2 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2022))])))
 pls3 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2021))])))
 pls4 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2020))])))
+
+# select closers
+minG = 1
+pls1 = np.unique(np.array(list(df['Name'].loc[((df['GS']<minG)&(df['Year']==2023))])))
+pls2 = np.unique(np.array(list(df['Name'].loc[((df['GS']<minG)&(df['Year']==2022))])))
+pls3 = np.unique(np.array(list(df['Name'].loc[((df['GS']<minG)&(df['Year']==2021))])))
+pls4 = np.unique(np.array(list(df['Name'].loc[((df['GS']<minG)&(df['Year']==2020))])))
+
 
 pls = np.unique(np.concatenate([pls1,pls2,pls3,pls4]))
 

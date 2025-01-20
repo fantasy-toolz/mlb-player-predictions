@@ -14,44 +14,20 @@ def predict_players(pls,years,printfile,AgeDict,PADict,df,hitter_cluster_centroi
         pstats = np.zeros(6)
         perr = np.zeros(6)
         pskew = np.zeros(6)
-        pa = 0.
+
         yrsum = 0.
         yrsum_denom = 0.
         nyrs = 0.
         ip_s = 0.
         ab = -1.
 
+        # match to IPs
+        pa = PADict[pl]#[0]
 
-        # rip these guys
-        skiplist = ['Jose Fernandez','Yordano Ventura', 'Jung Ho Kang']
+        # override ages right now
+        age = 25.0
 
-        if pl in skiplist:
-            continue
-
-        # match to stolen IPs
-        try:
-            #pa = ST['pa'][namelist==pl][0]
-            pa = PADict[pl][0]
-            #pa = df['PA'][(df['Name']==pl) & (df['Year']==2021.0) ].values[0]
-            #print(pa)
-        except:
-            pass
-            #print(pl)
-        #print(ip_s)
-
-        # try to get ages
-        #print(pl)
-        try:
-            age = float(AgeDict[pl])
-        except:
-            pass
-            #print('No age for', pl)
-            # default to no penalties
-            age = 25.0
-
-        #for year in [2017.0,2018.0,2019.0,2020.0]:
         for yrin in years:
-        #for year in [2018.0,2019.0,2020.0,2021.0]:
 
             year = int(yrin)
 
@@ -59,22 +35,20 @@ def predict_players(pls,years,printfile,AgeDict,PADict,df,hitter_cluster_centroi
                 v = list(df['Value Cluster'][(df['Name']==pl) & (df['Year']==year) ])[0]
 
                 for indx,stat in enumerate(fantasy_stats):
-                    statcen = list(hitter_cluster_centroid_df['{0}.Centroid'.format(stat)]\
-                          [hitter_cluster_centroid_df['Value Cluster']==v])[0]
+                    statcen = list(hitter_cluster_centroid_df['{0}.Centroid'.format(stat)][hitter_cluster_centroid_df['Value Cluster']==v])[0]
                     statnorm = list(df['{0}.Normalize'.format(stat)][(df['Name']==pl) & (df['Year']==year) ])[0]
 
-                    # 0.5 is the regression factor for the difference
                     pstats[indx] += year_weights[year] * ( regression_factor*(statnorm-statcen) + statcen)
-                    perr[indx] += year_weights[year] * ( err_regression_factor*(statnorm-statcen))
-                    pskew[indx] += year_weights[year] * np.sqrt(err_regression_factor)*((statnorm-statcen)*(statnorm-statcen))
+                    perr[indx]   += year_weights[year] * ( err_regression_factor*(statnorm-statcen))
+                    pskew[indx]  += year_weights[year] * np.sqrt(err_regression_factor)*((statnorm-statcen)*(statnorm-statcen))
 
                 yrsum += year_weights[year]
                 yrsum_denom += year_weights[year]
 
                 # apply an age penalty
                 #                  0.1          * (33 - 33)        + (-1)
-                age_penalty = age_penalty_slope * ((age-age_pivot) + (year-2018.))
-                yrsum -= np.max([age_penalty,0.0])
+                #age_penalty = age_penalty_slope * ((age-age_pivot) + (year-2018.))
+                #yrsum -= np.max([age_penalty,0.0])
 
                 nyrs += 1.
                 #stereotype_df['{0}.Normalize'.format(stat)] = stereotype_df['{0}.Normalize'.format(stat)] - stereotype_df['{0}.Normalize'.format(stat)] % 1
