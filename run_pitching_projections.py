@@ -7,56 +7,38 @@ import matplotlib.pyplot as plt
 import scipy
 import scipy.stats as ss
 
+# set up the parameters
+analysis_year         = 2025 # what year are we projecting?
+savedate              = '012725' # arbitrary tag for saving files
+nclusters             = 12 # how many archetypes are there?
+weight_distribution   = [0.5, 0.3, 0.13, 0.07] # how much do the past four years contribute?
+regression_factor     = 0.8 # how much regression to the mean?
+err_regression_factor = 1.5 # how much uncertainty in the regression to the mean?
 
-savedate = '022121'
-savedate = '030622'
-savedate = '010223'
-savedate = '020923'
-savedate = '111923'
-savedate = '112723'
-savedate = '122623c'
-savedate = '012824'
-savedate = '022624'
+year_weights = dict()
+for year in range(analysis_year-1,analysis_year-5,-1):
+    year_weights[year] = weight_distribution[analysis_year-year-1]
 
-nclusters=12
 
-# new weights for January 4th 2021
-year_weights = {}
-year_weights[2017.0] = 0.07
-year_weights[2018.0] = 0.13
-year_weights[2019.0] = 0.3
-year_weights[2020.0] = 0.5
+# obtain the data: this should be changed to be statscraping
+import mlbstatscraping as mss
 
-year_weights = {}
-year_weights[2018.0] = 0.07
-year_weights[2019.0] = 0.13
-year_weights[2020.0] = 0.3
-year_weights[2021.0] = 0.5
+years = range(analysis_year-4,analysis_year)
+for year in years:
+    PitchingDF = mss.get_fangraphs_data('pitching',[year])
+    PitchingDF.to_csv('data/AllPitching_{}.csv'.format(year),index=False)
+    lastyeardf = PitchingDF
+    if year == analysis_year-4:
+        df = PitchingDF
+    else:
+        df = pd.concat([df,PitchingDF])
 
-year_weights = {}
-year_weights[2019.0] = 0.07
-year_weights[2020.0] = 0.13
-year_weights[2021.0] = 0.3
-year_weights[2022.0] = 0.5
 
-year_weights = {}
-year_weights[2020.0] = 0.07
-year_weights[2021.0] = 0.13
-year_weights[2022.0] = 0.3
-year_weights[2023.0] = 0.5
 
-# penalty if missing
-year_weights_penalty = {}
-year_weights_penalty[2017.0] = 0.00
-year_weights_penalty[2018.0] = 0.00
-year_weights_penalty[2019.0] = 0.00
-year_weights_penalty[2020.0] = 0.00
-year_weights_penalty[2021.0] = 0.00
-year_weights_penalty[2022.0] = 0.00
-year_weights_penalty[2023.0] = 0.00
+# add optional age adjustments
+import src.ageregression as ageregression
+year_weights_penalty, age_penalty_slope, age_pivot = ageregression.return_age_factors()
 
-regression_factor = 0.8
-err_regression_factor = 1.5
 
 # set up saves predictions 2023
 #http://www.espn.com/fantasy/baseball/flb/story?page=REcloserorgchart
@@ -82,33 +64,6 @@ closers = [b'Paul Sewald',b'Raisel Iglesias',b'Craig Kimbrel',b'Kenley Jansen',b
 next_up = [b'Kevin Ginkel',b'Miguel Castro',b'A.J. Minter',b'Pierce Johnson',b'Yennier Cano',b'Danny Coulombe',b'Chris Martin',b'Josh Winckowski',b'Hector Neris',b'Julian Merryweather',b'Jesse Chavez',b'Bryan Shaw',b'Emilio Pagan',b'Lucas Sims',b'Scott Barlow',b'Trevor Stephan',b'Tyler Kinley',b'Daniel Bard',b'Jason Foley',b'Andrew Chafin',b'Ryan Pressly',b'Bryan Abreu',b'Matt Moore',b'Brusdar Graterol',b'Joe Kelly',b'Andrew Nardi',b'AJ Puk',b'Joel Payamps',b'Trevor Megill',b'Griffin Jax',b'Brock Stewart',b'Addam Ottavino',b'Drew Smith',b'Tommy Kahnle',b'Jonathan Loaisiga',b'Gregory Soto',b'Aroldis Chapman',b'Colin Holderman',b'Giovanny Gallegos',b'JoJo Romero',b'Yuki Matsui',b'Enyel De Los Santos',b'Tyler Rogers',b'Taylor Rogers',b'Matt Brash',b'Gregory Santos',b'Jason Adam',b'Colin Poche',b'Josh Sborz',b'Erik Swanson',b'Tim Mayza',b'Tanner Rainey']
 tweaks = []
 
-# obtain the data
-import src.predictiondata as predictiondata
-
-minyear,maxyear = 2017,2021
-minyear,maxyear = 2018,2022
-minyear,maxyear = 2019,2023
-minyear,maxyear = 2020,2024
-minyear,maxyear = 2023,2024
-
-years = range(minyear,maxyear)
-
-
-
-try: # is the relevant file already constructed?
-    df = pd.read_csv('predictions/AllPitching_{}_{}.csv'.format(minyear,maxyear-1))
-except:
-    df = predictiondata.grab_fangraphs_pitching_data(years)
-    df.to_csv('predictions/AllPitching_{}_{}.csv'.format(minyear,maxyear-1))
-    df = pd.read_csv('predictions/AllPitching_{}_{}.csv'.format(minyear,maxyear-1))
-
-lastyear = maxyear-1
-try:
-    lastyeardf = pd.read_csv('predictions/AllPitching_{}.csv'.format(lastyear))
-except:
-    lastyeardf = predictiondata.grab_fangraphs_pitching_data([lastyear])
-    lastyeardf.to_csv('predictions/AllPitching_{}.csv'.format(lastyear))
-    lastyeardf = pd.read_csv('predictions/AllPitching_{}.csv'.format(lastyear))
 
 
 # use 12 clusters
@@ -116,59 +71,9 @@ import src.makeclusters as makeclusters
 year_df,stereotype_df,dfnew,hitter_cluster_centroid_df = makeclusters.create_pitching_clusters(df,nclusters,years)
 
 
-#consider age factors
-# for hitters, call the falloff at age 33:
-# de-weight anything after 33 with a penalty increasing with age
-
-age_penalty_slope = 0.025 # I think 0.1 is AGGRESSIVE
-age_pivot = 33.0
-
 # now we need a pitching projection
-"""
-ST = np.genfromtxt('data/Stolen_IPs_0216.csv',delimiter=',',dtype=[('uid','i4'),('ip','f4'),('name','S20')],skip_header=1)
-"""
-ST = pd.read_csv('data/consolidated-ip-estimate-2024.csv')
-
-print(ST['Player'])
-
-namelist = np.array(ST['Player'].values)
-IPDict = dict()
-for name in namelist:
-    try:
-        IPDict[name] = ST['regression'][namelist==name].values[0]
-    except:
-        print("trouble for {}".format(name))
-
-print(IPDict)
-#IPDict = dict()
-
-for name in lastyeardf['Name']:
-    try:
-        if IPDict[name] > 0.0:
-            print('Good IP for {}'.format(name))
-            continue
-    except:
-        print("going on for {}".format(name))
-    try:
-        IPDict[name] = lastyeardf['IP'][lastyeardf['Name']==name].values[0]
-    except:
-        IPDict[name] = 60. # set the closer default
-
-
-print(IPDict['Zack Greinke'])
-print(IPDict['Jose Berrios'])
-
-#print(IPDict.keys())
-"""
-print(lastyeardf.keys())
-
-IPDict = dict()
-for name in namelist:
-    try:
-        IPDict[name] = lastyeardf['IP'][lastyeardf['Name']==name].values
-    except:
-        IPDict[name] = 25.
-"""
+import src.totalbattersfaced as totalbattersfaced
+IPDict1 = totalbattersfaced.get_ip_predictions(np.array(dfnew['Name'].values),lastyeardf)
 
 # make a threshold that only gives starters
 import src.projectplayers as projectplayers
@@ -176,10 +81,10 @@ import src.projectplayers as projectplayers
 pls = np.unique(np.array(list(df['Name'])))
 
 minG = 5
-pls1 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2023))])))
-pls2 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2022))])))
-pls3 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2021))])))
-pls4 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2020))])))
+pls1 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2024))])))
+pls2 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2023))])))
+pls3 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2022))])))
+pls4 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2021))])))
 
 # select closers
 minG = 1
@@ -190,6 +95,13 @@ pls4 = np.unique(np.array(list(df['Name'].loc[((df['GS']<minG)&(df['Year']==2020
 
 
 pls = np.unique(np.concatenate([pls1,pls2,pls3,pls4]))
+
+IPDict = dict()
+for pl in pls:
+    try:
+        IPDict[pl] = float(IPDict1[pl][0])
+    except:
+        IPDict[pl] = 25.
 
 #pls = np.unique(np.array(list(df['Name'])))
 

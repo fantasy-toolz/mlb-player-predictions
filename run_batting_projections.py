@@ -60,8 +60,6 @@ printfile = 'predictions/hitter_predictions_{}_'.format(analysis_year)+savedate+
 ShouldProject = projectplayers.predict_players(pls,years,printfile,dict(),PADict,dfnew,hitter_cluster_centroid_df,year_weights,year_weights_penalty,regression_factor,err_regression_factor,age_penalty_slope,age_pivot)
 
 
-print(ShouldProject)
-
 
 A = np.genfromtxt(printfile,\
 
@@ -94,5 +92,5 @@ printfile = 'predictions/batter_predictions_{}_{}.tbl'.format(analysis_year,save
 rprint.print_html_ranks(printfile,A,totrank,LDict,MDict,HDict)
 
 # make easier to read csv
-printfile = 'predictions/batter_predictions'+savedate+'.csv'
+printfile = 'predictions/batter_predictions_{}_{}.csv'.format(analysis_year,savedate)
 rprint.print_csv_ranks(printfile,A,totrank,sumrank,LDict,MDict,HDict)

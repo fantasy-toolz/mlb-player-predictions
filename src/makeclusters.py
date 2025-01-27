@@ -167,31 +167,19 @@ def create_pitching_clusters(df,ccen,\
                     years,
                     min_pas=100,\
                     savedir='predictions/'):
+    
     StarterCenters = {}
     StereotypeKeys = {}
 
     n_clusters = ccen
-    df = df.loc[df['Name']==df['Name'] ]#) & (hitter_eoy_df['wRC+'] != '&nbsp;')]
+    df = df.loc[df['Name']==df['Name']]
 
-    for column in df.columns[4:]:
-        if column != 'wRC+':
-            try:
-                #df[column] = df[column].astype(float)
-                df.loc[column] = df[column].astype(float)
-            except:
-                df.loc[column] = df[column].str[:-1]
-                df.loc[column] = df[column].astype(float)
-
-    # if selecting for starters
-    #df = df.loc[(df['TBF']> 150) & (df['GS'] > 10) ]
-
-    # if selecting for relievers
-    #df = df.loc[(df['TBF']> 100) & (df['GS'] < 10) ]
+    for column in df.columns[3:]:
+        #df.loc[column] = df[column].astype(float)
+        df[column] = df[column].astype(float)
 
     # if selecting for starters
     df = df.loc[(df['TBF']> 100)]
-
-
 
     fantasy_stats = ['HR', 'ER', 'BB', 'H', 'SO']
 
