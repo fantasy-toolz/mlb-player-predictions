@@ -11,7 +11,7 @@ import pandas as pd
 
 # set up the parameters
 analysis_year         = 2025 # what year are we projecting?
-savedate              = '021625' # arbitrary tag for saving files
+savedate              = '022325' # arbitrary tag for saving files
 nclusters             = 12 # how many archetypes are there?
 weight_distribution   = [0.5, 0.3, 0.13, 0.07] # how much do the past four years contribute?
 regression_factor     = 0.8 # how much regression to the mean?

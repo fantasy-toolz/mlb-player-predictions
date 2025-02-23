@@ -108,7 +108,7 @@ IPDict = dict()
 IPDF = mss.get_fantasypros_projections('pitchers',preseason=True)
 for pl in pls:
     try:
-        IPDict[pl] = float(IPDF['IP'][IPDF['Player']==(pl+' ')][0])
+        IPDict[pl] = float(IPDF['IP'][IPDF['Player']==(pl+' ')].values[0])
     except:
         print('Failed for {}'.format(pl))
         IPDict[pl] = 25.
