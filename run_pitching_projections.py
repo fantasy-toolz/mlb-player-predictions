@@ -9,7 +9,7 @@ import scipy.stats as ss
 
 # set up the parameters
 analysis_year         = 2025 # what year are we projecting?
-savedate              = '012725' # arbitrary tag for saving files
+savedate              = '022325' # arbitrary tag for saving files
 nclusters             = 12 # how many archetypes are there?
 weight_distribution   = [0.5, 0.3, 0.13, 0.07] # how much do the past four years contribute?
 regression_factor     = 0.8 # how much regression to the mean?
@@ -81,17 +81,17 @@ import src.projectplayers as projectplayers
 pls = np.unique(np.array(list(df['Name'])))
 
 minG = 5
-pls1 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2024))])))
-pls2 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2023))])))
-pls3 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2022))])))
-pls4 = np.unique(np.array(list(df['Name'].loc[((df['GS']>minG)&(df['Year']==2021))])))
+pls1 = np.unique(np.array(list(df['Name'].loc[((df['GS'].astype('float')>minG)&(df['Year']==2024))])))
+pls2 = np.unique(np.array(list(df['Name'].loc[((df['GS'].astype('float')>minG)&(df['Year']==2023))])))
+pls3 = np.unique(np.array(list(df['Name'].loc[((df['GS'].astype('float')>minG)&(df['Year']==2022))])))
+pls4 = np.unique(np.array(list(df['Name'].loc[((df['GS'].astype('float')>minG)&(df['Year']==2021))])))
 
 # select closers
 minG = 1
-pls1 = np.unique(np.array(list(df['Name'].loc[((df['GS']<minG)&(df['Year']==2023))])))
-pls2 = np.unique(np.array(list(df['Name'].loc[((df['GS']<minG)&(df['Year']==2022))])))
-pls3 = np.unique(np.array(list(df['Name'].loc[((df['GS']<minG)&(df['Year']==2021))])))
-pls4 = np.unique(np.array(list(df['Name'].loc[((df['GS']<minG)&(df['Year']==2020))])))
+pls1 = np.unique(np.array(list(df['Name'].loc[((df['GS'].astype('float')<minG)&(df['Year']==2023))])))
+pls2 = np.unique(np.array(list(df['Name'].loc[((df['GS'].astype('float')<minG)&(df['Year']==2022))])))
+pls3 = np.unique(np.array(list(df['Name'].loc[((df['GS'].astype('float')<minG)&(df['Year']==2021))])))
+pls4 = np.unique(np.array(list(df['Name'].loc[((df['GS'].astype('float')<minG)&(df['Year']==2020))])))
 
 
 pls = np.unique(np.concatenate([pls1,pls2,pls3,pls4]))
@@ -102,6 +102,17 @@ for pl in pls:
         IPDict[pl] = float(IPDict1[pl][0])
     except:
         IPDict[pl] = 25.
+
+
+IPDict = dict()
+IPDF = mss.get_fantasypros_projections('pitchers',preseason=True)
+for pl in pls:
+    try:
+        IPDict[pl] = float(IPDF['IP'][IPDF['Player']==(pl+' ')][0])
+    except:
+        print('Failed for {}'.format(pl))
+        IPDict[pl] = 25.
+
 
 #pls = np.unique(np.array(list(df['Name'])))
 
