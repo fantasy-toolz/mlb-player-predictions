@@ -2,7 +2,7 @@
 
 
 import numpy as np
-
+import pandas as pd
 
 def forecast_600(pls):
     PADict = dict()
@@ -10,11 +10,10 @@ def forecast_600(pls):
         PADict[pl] = 600.
     return PADict
 
-def get_plate_appearances(pls):
+def get_plate_appearances(pls,filename='data/estimated-batting-stats-2024.csv'):
     # to complete, we need PA predictions.
     #ST = pd.read_csv('../batting-order/data/2023/estimated_batting_stats_2023.csv')
-    ST = pd.read_csv('data/estimated-batting-stats-2024.csv')
-
+    ST = pd.read_csv(filename)
 
     namelist = np.array([x for  x in ST['player'].values])
 

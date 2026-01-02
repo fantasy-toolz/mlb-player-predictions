@@ -99,9 +99,9 @@ xvals = np.linspace(0.,120.,1000)
 LDict,MDict,HDict = rprint.make_mid_min_max(A,totrank,fantasy_stats,xvals)
 
 # make html table
-printfile = 'predictions/batter_predictions_{}_{}.tbl'.format(analysis_year,savedate)
+printfile = 'predictions/{}/batter_predictions_{}.tbl'.format(analysis_year,savedate)
 rprint.print_html_ranks(printfile,A,totrank,LDict,MDict,HDict)
 
 # make easier to read csv
-printfile = 'predictions/batter_predictions_{}_{}.csv'.format(analysis_year,savedate)
+printfile = 'predictions/{}/batter_predictions_{}.csv'.format(analysis_year,savedate)
 rprint.print_csv_ranks(printfile,A,totrank,sumrank,LDict,MDict,HDict)
